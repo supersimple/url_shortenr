@@ -6,7 +6,7 @@ defmodule UrlShortenr.Controller do
 
         conn
         |> Plug.Conn.resp(301, "Redirecting")
-        |> Plug.Conn.put_resp_header("location", "http://" <> long_url)
+        |> Plug.Conn.put_resp_header("location", long_url)
 
       nil ->
         Plug.Conn.send_resp(conn, 404, "Not Found")
