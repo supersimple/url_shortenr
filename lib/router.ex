@@ -4,7 +4,6 @@ defmodule Router do
   plug(:match)
   plug(:dispatch)
 
-  # TODO: handle fully qualified URLs
   get "/generate" do
     conn = fetch_query_params(conn)
     long_url = Map.get(conn.params, "url")

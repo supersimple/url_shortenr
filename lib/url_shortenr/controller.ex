@@ -1,7 +1,7 @@
 defmodule UrlShortenr.Controller do
   def redirect_to_long_url(conn, short_url) do
     case UrlShortenr.Data.get(short_url) do
-      {long_url, _count} ->
+      {_short_url, long_url, _count} ->
         UrlShortenr.Data.update_count(short_url)
 
         conn
@@ -20,10 +20,14 @@ defmodule UrlShortenr.Controller do
   end
 
   def stats(conn) do
-    data = UrlShortenr.Data.get()
-    {long_url, count} = Enum.at(data, 0)
-    # TODO: iterate all values and build response
-    Plug.Conn.send_resp(conn, 200, Jason.encode!(long_url))
+    resp =
+      UrlShortenr.Data.get()
+      |> Enum.map(fn {_key, {short_url, long_url, count}} ->
+        %{short_url: short_url, long_url: long_url, count: count}
+      end)
+      |> Jason.encode!()
+
+    Plug.Conn.send_resp(conn, 200, resp)
   end
 
   defp short_url(long_url) do

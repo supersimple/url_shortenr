@@ -7,7 +7,7 @@ defmodule UrlShortenr.Data do
 
   def add({short_url, long_url, 0}) do
     Agent.update(__MODULE__, fn state ->
-      Map.put(state, short_url, {long_url, 0})
+      Map.put(state, short_url, {short_url, long_url, 0})
     end)
   end
 
@@ -23,8 +23,8 @@ defmodule UrlShortenr.Data do
 
   def update_count(short_url) do
     Agent.update(__MODULE__, fn state ->
-      {long_url, count} = Map.get(state, short_url)
-      Map.replace!(state, short_url, {long_url, count + 1})
+      {short_url, long_url, count} = Map.get(state, short_url)
+      Map.replace!(state, short_url, {short_url, long_url, count + 1})
     end)
   end
 end
