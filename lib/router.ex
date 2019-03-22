@@ -5,8 +5,9 @@ defmodule Router do
   plug(:dispatch)
 
   # TODO: handle fully qualified URLs
-  get "/generate/:long_url" do
-    long_url = Map.get(conn.params, "long_url")
+  get "/generate" do
+    conn = fetch_query_params(conn)
+    long_url = Map.get(conn.params, "url")
     UrlShortenr.Controller.generate_short_url(conn, long_url)
   end
 
