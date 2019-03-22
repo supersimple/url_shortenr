@@ -5,14 +5,10 @@ defmodule UrlShortenr.Data do
     Agent.start_link(fn -> %{} end, name: __MODULE__)
   end
 
-  def add({short_url, long_url, 0} = request) do
-    if long_url_exists?(long_url) do
-      request
-    else
-      Agent.update(__MODULE__, fn state ->
-        Map.put(state, short_url, request)
-      end)
-    end
+  def add({short_url, long_url, 0}) do
+    Agent.update(__MODULE__, fn state ->
+      Map.put(state, short_url, {short_url, long_url, 0})
+    end)
   end
 
   def get(short_url) do
@@ -28,11 +24,11 @@ defmodule UrlShortenr.Data do
   def long_url_exists?(long_url) do
     Agent.get(__MODULE__, fn state ->
       exists? =
-        Enum.find(state, fn {key, {_short_url, existing_long_url, _count}} ->
+        Enum.find(state, fn {_key, {_short_url, existing_long_url, _count}} ->
           existing_long_url == long_url
         end)
 
-      not is_nil(exists?)
+      !is_nil(exists?)
     end)
   end
 

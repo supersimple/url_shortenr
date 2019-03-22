@@ -15,8 +15,20 @@ defmodule UrlShortenr.Controller do
 
   def generate_short_url(conn, long_url) do
     short_url = short_url(long_url)
-    UrlShortenr.Data.add({short_url, long_url, 0})
-    Plug.Conn.send_resp(conn, 200, short_url)
+    valid? = valid_url?(long_url)
+    exists? = UrlShortenr.Data.long_url_exists?(long_url)
+
+    cond do
+      !valid? ->
+        Plug.Conn.send_resp(conn, 422, "Invalid URL")
+
+      exists? ->
+        Plug.Conn.send_resp(conn, 200, short_url)
+
+      true ->
+        UrlShortenr.Data.add({short_url, long_url, 0})
+        Plug.Conn.send_resp(conn, 200, short_url)
+    end
   end
 
   def stats(conn) do
@@ -37,4 +49,11 @@ defmodule UrlShortenr.Controller do
     |> Base.encode16()
     |> String.slice(0..7)
   end
+
+  defp valid_url?(url) when is_binary(url) do
+    %{scheme: scheme, host: host} = URI.parse(url)
+    !is_nil(scheme) and !is_nil(host)
+  end
+
+  defp valid_url?(_url), do: false
 end
